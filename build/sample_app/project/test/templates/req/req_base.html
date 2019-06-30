@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extend_head %}
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+  <style type='text/css'>
+    .dataTables_wrapper .dataTables_length {
+      float: right;
+    }
+    .dataTables_wrapper .dataTables_filter {
+      float: left;
+    }
+    select {
+      display: inherit;
+    }
+    form input {
+      background-color: lightyellow !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div id="req_content_header">
+    {% block req_content_header %}{% endblock %}
+  </div>
+  選択中のアドレス
+  <br>
+  <table id="data-list"class="stripe row-border cell-border">
+    <thead>
+      <tr>
+        <th width=20>No</th>
+        <th width=80>IP</th>
+        <th>部署</th>
+        <th>氏名</th>
+        <th>アドレス</th>
+        <th width=55>貸出日</th>
+        <th width=55>返却日</th>
+        <th>VM名</th>
+        <th>利用目的</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ obj.num }}</td>
+        <td>{{ obj.ip }}</td>
+        <td>{{ obj.dept }}</td>
+        <td>{{ obj.name }}</td>
+        <td>{{ obj.address }}</td>
+        <td>{{ obj.checkout_date | date:"SHORT_DATE_FORMAT" }}</td>
+        <td>{{ obj.limit_date | date:"SHORT_DATE_FORMAT" }}</td>
+        <td>{{ obj.vm_name }}</td>
+        <td>{{ obj.purpose }}</td>
+        <td>{{ obj.notes }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <div id="req_content_footer">
+    {% block req_content_footer %}{% endblock %}
+  </div>
+  <br>
+  <hr>
+  <a href="{% url 'main' %}">メインページに戻る</a>
+  
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $("#data-list").DataTable({
+        paging: false,  // ページング有効化
+        pageLength: 100,  // ページング有効化時のデフォルトの表示件数
+        lengthChange: false,  // ページング有効化時、一度に表示される件数を可変にする
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],  // 可変表示のメニュー
+        searching: false,  // 検索有効化
+        ordering: false,  // ソート有効化
+        info: false,  // 表示件数情報（表の左下に表示される）
+      });
+    } );
+  </script>
+{% endblock %}

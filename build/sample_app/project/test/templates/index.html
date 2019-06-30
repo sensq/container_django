@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>{% block title %}シンプルマネージャ{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'fav.png' %}">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    {% block extend_head %}{% endblock %}
+    <style type='text/css'>
+        body {
+          display: flex;
+          min-height: 100vh;
+          flex-direction: column;
+        }
+      
+        main {
+          flex: 1 0 auto;
+          margin: 0px 5% 55px;
+        }
+        
+        .footer-fixed {
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+  <div class="navbar-fixed">
+    <nav>
+      <!-- Nav Bar -->
+      <div class="blue nav-wrapper">
+        <a href="#" class="brand-logo center"><i class="material-icons">home</i></a>
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+          <li><a href="{% url 'main' %}"><i class="small material-icons left">apps</i>Main</a></li>
+          <li><a href="{% url 'news' %}"><i class="small material-icons left">notifications</i>News</a></li>
+          <li><a href="{% url 'about' %}"><i class="small material-icons left">error</i>About</a></li>
+          <li><a href="{% url 'howto' %}"><i class="small material-icons left">school</i>How to</a></li>
+          <li><a href="{% url 'contact' %}"><i class="small material-icons left">record_voice_over</i>Contact</a></li>
+        </ul>
+        <ul id="nav-mobile-right" class="right hide-on-med-and-down">
+          {% if not request.user.is_authenticated %}
+          <li><a href="{% url 'login' %}" class="waves-effect waves-light btn-small"><i class="small material-icons right">meeting_room</i>Login</a></li>
+          {% else %}
+          <li><a href="{% url 'logout' %}" class="waves-effect waves-light btn-small"><i class="small material-icons right">no_meeting_room</i>『{{ request.user.username }}』 Logout</a></li>
+          {% endif %}
+          {% if request.user.is_superuser %}
+          <li><a href="{% url 'admin:index' %}" class="deep-orange darken-2 waves-effect waves-light btn-small"><i class="small material-icons right">build</i>AdminPage</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Begin page content -->
+  <main>
+    <div class="row">
+      <div class="col s12 m6">
+        <div class="card red lighten-3">
+          <div class="card-content black-text">
+            <span class="card-title">Card Title</span>
+            <p><strong>I am a very simple card. I am good at containing small bits of information.
+            I am convenient because I require little markup to use effectively.</strong></p>
+          </div>
+          <div class="card-action">
+            <a href="#">This is a link</a>
+            <a href="#">This is a link</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Fixed footer -->
+  <footer>
+    <div class="footer-fixed z-depth-0 blue lighten-1">
+      <div class="container">
+        <p>
+          © 2019 Copyright Text
+          <a class="grey-text text-lighten-4 right">hogehoge@dummy.co.jp<i class="material-icons left">email</i></a>
+        </p>
+  	  </div>
+    </div>
+  </footer>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

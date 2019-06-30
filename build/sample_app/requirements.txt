@@ -1,0 +1,4 @@
+Django==2.1  # for PyMySql's bug
+PyMySQL
+uwsgi
+python-memcached

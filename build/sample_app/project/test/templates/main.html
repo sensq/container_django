@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extend_head %}
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+  <style type='text/css'>
+    .dataTables_wrapper .dataTables_length {
+      float: right;
+    }
+    .dataTables_wrapper .dataTables_filter {
+      float: left;
+    }
+    select {
+      display: inherit;
+    }
+  </style>
+{% endblock %}
+
+{% block nav_home_activate %} class="active"{% endblock %}
+
+{% block content %}
+      <h2>申請可能IP一覧</h2>
+      <p>今日は『{{ today | date:"SHORT_DATE_FORMAT" }}』です。</p>
+      <p>初めての方は<a href="/howto/">使い方ページ</a>をご参照下さい。{{ request.session }}
+      {% if request.user.is_superuser %}
+      <a href="{% url 'export_csv' %}" class="waves-effect waves-light btn-small" role="button">CSV Export (admin only)</a><br><br>
+      {% endif %}
+      </p>
+      <table id="data-list" class="stripe row-border cell-border">
+        <thead>
+          <tr>
+            <th width=20>No</th>
+            <th>IP</th>
+            <th><i class="small material-icons">create</i> </th>
+            <th>Status</th>
+            <th>Ping</th>
+            <th><i class="small material-icons">domain</i> </th>
+            <th><i class="small material-icons">person</i> </th>
+            <th><i class="small material-icons">mail</i> </th>
+            <th>貸出日</th>
+            <th>返却日</th>
+            <th>仮想マシン名</th>
+            <th>目的</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in data %}
+          <tr> <!-- DataTablesのCSSでtdのclassが定義されているため、trにbgcolorを設定してもtdのbgcolorで上書きされる -->
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.num }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.ip }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
+              <a href="{% url 'req' obj.num %}">Req</a> <a href="{% url 'details' obj.num %}">Details</a>
+            </td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
+              {% if not obj.in_use %}Free
+              {% else %}{% if not obj.expired %}Using{% else %}Expired{% endif %}
+              {% endif %}
+            </td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
+              {% if obj.ping %}<i class="small material-icons">wifi</i> {% endif %}
+            </td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.dept }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.name }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.address }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.checkout_date }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.limit_date }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.vm_name }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.purpose }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.notes }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+      <script>
+        $(document).ready(function() {
+          $("#data-list").DataTable({
+            paging: true,  // ページング有効化
+            pageLength: 100,  // ページング有効化時のデフォルトの表示件数
+            lengthChange: true,  // ページング有効化時、一度に表示される件数を可変にする
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],  // 可変表示のメニュー
+            searching: true,  // 検索有効化
+            ordering: true,  // ソート有効化
+            info: true,  // 表示件数情報（表の左下に表示される）
+            dom: 'flitp',
+            order: [[3, "desc"]],
+            // 検索対象から除外する列の指定
+            columnDefs: [ {
+              orderable: false,
+              targets: [0],  // No, アクション, IPを除外する
+            } ],
+            // 非表示にする列の指定
+            columnDefs: [ {
+              visible: false,{% if not request.user.is_superuser %}  // 部署, 氏名, アドレスを非表示にする
+              targets: [],{% else %}
+              targets: [],{% endif %}
+            } ],
+          });
+        } );
+      </script>
+{% endblock %}

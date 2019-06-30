@@ -1,0 +1,49 @@
+server {
+    listen      80;
+    server_name localhost;
+
+    server_tokens off;
+
+    access_log    /var/log/nginx/access.log;
+    error_log     /var/log/nginx/error.log;
+
+    rewrite ^/(${NGINX_LOCATION_SUBDIR})$ $1/ permanent;
+
+    location ~ ^/${NGINX_LOCATION_SUBDIR}/(.*)$ {
+        uwsgi_pass ${WSGI_CONTAINER_NAME}:${WSGI_PORT};
+        include /etc/nginx/uwsgi_params;
+        uwsgi_param SCRIPT_NAME /${NGINX_LOCATION_SUBDIR};
+        uwsgi_param PATH_INFO /$1;
+    }
+
+    location /static {
+       alias /codes/static;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name localhost;
+    
+    server_tokens off;
+
+    access_log    /var/log/nginx/access.log;
+    error_log     /var/log/nginx/error.log;
+
+    ssl_protocols        TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate      /etc/nginx/server.crt;
+    ssl_certificate_key  /etc/nginx/server.key;
+
+    rewrite ^/(${NGINX_LOCATION_SUBDIR})$ $1/ permanent;
+
+    location ~ ^/${NGINX_LOCATION_SUBDIR}/(.*)$ {
+        uwsgi_pass ${WSGI_CONTAINER_NAME}:${WSGI_PORT};
+        include /etc/nginx/uwsgi_params;
+        uwsgi_param SCRIPT_NAME /${NGINX_LOCATION_SUBDIR};
+        uwsgi_param PATH_INFO /$1;
+    }
+
+    location /static {
+       alias /codes/static;
+    }
+}

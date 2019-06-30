@@ -1,0 +1,6 @@
+*.pyc
+__pycache__
+data/static/admin/
+data/static/import_export/
+build/sample_app/project/*/migrations/
+build/web/cert/

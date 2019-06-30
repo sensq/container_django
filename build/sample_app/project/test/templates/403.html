@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extend_head %}
+{% endblock %}
+
+{% block nav_home_activate %}active{% endblock %}
+
+{% block content %}
+      <h2>403 Forbidden</h2>
+      不正な画面遷移です。
+      <hr>
+      <a href="{% url 'main' %}">メインページに戻る</a>
+{% endblock %}

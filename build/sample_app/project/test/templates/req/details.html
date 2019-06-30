@@ -1,0 +1,26 @@
+{% extends 'req/req_base.html' %}
+
+{% block req_content_header %}
+    <h2>詳細入力ページ</h2>
+{% endblock %}
+  
+{% block req_content_footer %}
+    <form action="set_details/" method="POST">
+      {% csrf_token %}
+      {{ form.vm_name.label_tag }}<br>
+      {{ form.vm_name }}<br>
+      <br>
+      {{ form.purpose.label_tag }}<br>
+      {{ form.purpose }}<br>
+      <br>
+      {{ form.notes.label_tag }}<br>
+      {{ form.notes }}<br>
+      <input type="hidden" name="request_id" value={{ obj.num}} />
+      <br>
+      それぞれ、30, 15, 80, 80文字以上は入力できません。<br>
+      削除したい場合は、空欄にして更新して下さい。<br><br>
+      <button class="btn waves-effect waves-light" type="submit" name="action">更新
+        <i class="material-icons right">send</i>
+      </button>
+    </form>
+{% endblock %}

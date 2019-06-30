@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extend_head %}
+  <!-- Custom -->
+  <link rel="stylesheet" type="text/css" href="{% static 'login.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <div class="wrapper">
+      <form class="form-signin" action="{% url 'login' %}" method="post">       
+        <p style="text-align:center;"><i class="large material-icons" style="color:green;">account_circle</i></p>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <table>
+        <tr>
+          <td>ID</td>
+          <td>{{ form.errors.username }}</td>
+          <td>{{ form.username }}</td>
+        </tr>
+        <tr>
+          <td>パスワード</td>
+          <td>{{ form.errors.password }}</td>
+          <td>{{ form.password }}</td>
+        </tr>
+        </table>
+        <br>
+        <button class="btn waves-effect waves-light" type="submit" value="login">
+          <i class="small material-icons right">meeting_room</i>Login
+        </button>
+        <input type="hidden" name="next" value="{{ next }}" />
+        <br>
+        <small>
+        ※<font color=red>IE非対応です。</font>Chrome/Firefoxで動作確認しています。
+        </small>
+      </form>
+    </div>
+{% endblock %}
