@@ -22,7 +22,7 @@
 {% block content %}
       <h2>申請可能IP一覧</h2>
       <p>今日は『{{ today | date:"SHORT_DATE_FORMAT" }}』です。</p>
-      <p>初めての方は<a href="/howto/">使い方ページ</a>をご参照下さい。{{ request.session }}
+      <p>初めての方は<a href="/howto/">使い方ページ</a>をご参照下さい。
       {% if request.user.is_superuser %}
       <a href="{% url 'export_csv' %}" class="waves-effect waves-light btn-small" role="button">CSV Export (admin only)</a><br><br>
       {% endif %}
@@ -32,7 +32,7 @@
           <tr>
             <th width=20>No</th>
             <th>IP</th>
-            <th><i class="small material-icons">create</i> </th>
+            <th style="width:150px;"><i class="small material-icons">create</i> </th>
             <th>Status</th>
             <th>Ping</th>
             <th><i class="small material-icons">domain</i> </th>
@@ -51,7 +51,8 @@
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.num }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.ip }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
-              <a href="{% url 'req' obj.num %}">Req</a> <a href="{% url 'details' obj.num %}">Details</a>
+              <a href="{% url 'req' obj.num %}"><button class="btn-small red"><i class="small material-icons">add</i>申請</button></a>
+              {% if obj.in_use %} <a href="{% url 'details' obj.num %}"><button class="btn-small green"><i class="small material-icons">create</i>詳細</button></a>{% endif %}
             </td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
               {% if not obj.in_use %}Free
@@ -59,7 +60,10 @@
               {% endif %}
             </td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>
-              {% if obj.ping %}<i class="small material-icons">wifi</i> {% endif %}
+              <a href="{% url 'ping' obj.num %}">
+              {% if obj.ping %}<i class="small material-icons">wifi</i>
+              {% else %}<i class="small material-icons">clear</i> {% endif %}
+              </a>
             </td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.dept }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.name }}</td>
@@ -76,6 +80,7 @@
       
       <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
       <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/ip-address.js"></script>
       <script>
         $(document).ready(function() {
           $("#data-list").DataTable({
@@ -94,11 +99,13 @@
               targets: [0],  // No, アクション, IPを除外する
             } ],
             // 非表示にする列の指定
-            columnDefs: [ {
-              visible: false,{% if not request.user.is_superuser %}  // 部署, 氏名, アドレスを非表示にする
-              targets: [],{% else %}
-              targets: [],{% endif %}
-            } ],
+            columnDefs: [
+              { visible: false,{% if not request.user.is_superuser %}  // 部署, 氏名, アドレスを非表示にする
+                  targets: [0],{% else %}
+                  targets: [0,5,6,7],{% endif %}
+              },
+              { type: 'ip-address', targets: 1 }
+            ],
           });
         } );
       </script>

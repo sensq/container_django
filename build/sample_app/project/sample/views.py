@@ -20,7 +20,6 @@ def main(request):
     """
     IP一覧ページを表示する関数
     """
-    import datetime
     ret = {
         'data': None,
         'today': timezone.localtime(timezone.now()),
@@ -53,7 +52,7 @@ def export_csv(request):
         dataset = DataResource().export()
         now = timezone.localtime(timezone.now()).strftime("%Y%m%d_%H%M%S")
         filename = "simplemgr_" + now + ".csv"
-        path = ("/codes/export_csv/" + filename)
+        path = ("/export_csv/" + filename)
         with open(path, mode='w') as f:
             f.write(dataset.csv)
         output = io.StringIO()
@@ -63,6 +62,22 @@ def export_csv(request):
         return response
     else:
         return redirect("main")
+
+@login_required
+def ping(request, num):
+    if request.method == "GET":
+        obj = MgrData.objects.get(num=num)
+        
+        # 改竄等による不正な遷移の防止
+        if( num == 0 ):
+            return redirect("403")
+        if( not request.user.is_superuser ):
+            if( obj.in_use and obj.address != request.user.email ):
+                return redirect("403")
+        
+        obj.update_ping()
+        
+        return redirect(request.META['HTTP_REFERER'])
 
 @login_required
 def req(request, num):
@@ -81,22 +96,16 @@ def req(request, num):
         
         # 継続申請の可否チェック
         increase_enable = False
-        decrease_enable = False
         if obj.in_use:
             # 今日が返却日の1ヶ月前を過ぎていることの確認
             import datetime
             if obj.limit_date is not None and obj.checkout_date is not None:
                 if datetime.date.today() > (obj.limit_date - relativedelta(months=1)):
                     increase_enable = True
-                # 今日と貸出日が返却日の3ヶ月前よりも前であることの確認
-                if datetime.date.today() < (obj.limit_date - relativedelta(months=3)):
-                    if obj.checkout_date < (obj.limit_date - relativedelta(months=3)):
-                        decrease_enable = True
         
         ret = {
             "obj": obj,
             "increase_enable": increase_enable,
-            "decrease_enable": decrease_enable,
         }
         
         return render(request, 'req/req.html', ret)
@@ -191,50 +200,24 @@ def increase_limit(request):
         import datetime
         # 今日が返却日の1ヶ月前を過ぎていた場合のみ実行
         if datetime.date.today() > (obj.limit_date - relativedelta(months=1)):
-            obj.limit_date = (obj.limit_date + relativedelta(months=3))
+            obj.limit_date = (datetime.date.today() + relativedelta(months=3))
             obj.save()
             obj.update_expired()
         
-        ret = {"obj": obj, "order": "increase"}
+        # 継続申請の可否チェック
+        increase_enable = False
+        
+        ret = {
+            "obj": obj,
+            "increase_enable": increase_enable,
+            "order": "increase",
+        }
         
         return render(request, 'req/req.html', ret)
         
     else:
         return redirect("main")
 
-
-@login_required
-def reduce_limit(request):
-    """
-    期限日を3ヶ月短縮する関数
-    """
-    if request.method == "POST":
-        num = request.POST.get("request_id", "0")
-        obj = MgrData.objects.get(num=num)
-        
-        # 改竄等による不正な遷移の防止
-        if( num == 0 ):
-            return redirect("403")
-        if( not request.user.is_superuser ):
-            if( obj.in_use and obj.address != request.user.email ):
-                return redirect("403")
-                    
-        execute = False
-        
-        # 今日が返却日の3ヶ月前よりも前の場合のみ実行
-        import datetime
-        if datetime.date.today() < (obj.limit_date - relativedelta(months=3)):
-            # 貸出日が返却日の3ヶ月前よりも前の場合のみ実行
-            if obj.checkout_date < (obj.limit_date - relativedelta(months=3)):
-                obj.limit_date = (obj.limit_date - relativedelta(months=3))
-                obj.save()
-        
-        ret = {"obj": obj, "order": "reduce"}
-        
-        return render(request, 'req/req.html', ret)
-        
-    else:
-        return redirect("main")
 
 @login_required
 def details(request, num):

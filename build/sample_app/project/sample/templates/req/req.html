@@ -14,9 +14,20 @@
             <p>IPを返却しました</p>
             {% elif order == "increase" %}
             <p>期限を延長しました</p>
-            {% elif order == "reduce" %}
-            <p>期限の延長を取り消しました</p>
             {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if obj.ping %}
+    <div class="row">
+      <div class="col s12 m6">
+        <div class="card orange darken-1">
+          <div class="card-content black-text">
+            <span class="card-title">Warning!!</span>
+            <font color=blue><b>Error!! このIPを持ったマシンが存在します。先に仮想マシンの削除 or NICの取り外しをお願いします。</b></font><br>
+            <a href="{% url 'ping' obj.num %}"><button class="btn"><i class="material-icons">send</i>疎通確認</button></a><br>
           </div>
         </div>
       </div>
@@ -41,15 +52,6 @@
         <i class="material-icons right">send</i>
       </button>
       貸与中のIPを返却します。
-      {% if obj.ping %}
-      <br>
-      <font color=red><b>Error!! このIPを持ったマシンが存在します。先に仮想マシンの削除 or NICの取り外しをお願いします。</b></font>
-    </form>
-    <form action="ping/" method="POST">
-      {% csrf_token %}
-      <input type="hidden" name="request_id" value={{ obj.num}} />
-      <input type="submit" class="btn btn-warning" value="疎通確認" />
-      {% endif %}
     </form>
     <br>
     <form action="{% url 'increase_limit' %}" method="POST">
@@ -59,14 +61,5 @@
         <i class="material-icons right">send</i>
       </button>
       返却日の1ヶ月前から申請可能です。
-    </form>
-    <br>
-    <form action="{% url 'reduce_limit' %}" method="POST">
-      {% csrf_token %}
-      <input type="hidden" name="request_id" value={{ obj.num}} />
-      <button class="btn waves-effect waves-light {% if not decrease_enable %}disabled{% endif %}" type="submit" name="action">延長の取り消し
-        <i class="material-icons right">send</i>
-      </button>
-      申請した延長申請を取り消します。
     </form>
 {% endblock %}

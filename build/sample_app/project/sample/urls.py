@@ -30,11 +30,11 @@ urlpatterns = [
     path('contact/', views.index, name='contact'),
     path('export_csv/', views.export_csv, name='export_csv'),
     
+    path('ping/<int:num>', views.ping, name='ping'),
     path('req/<int:num>', views.req, name='req'),
     path('req/new_checkout/', views.new_checkout, name='new_checkout'),
     path('req/clear_checkout/', views.clear_checkout, name='clear_checkout'),
     path('req/increase_limit/', views.increase_limit, name='increase_limit'),
-    path('req/reduce_limit/', views.reduce_limit, name='reduce_limit'),
     
     path('details/<int:num>', views.details, name='details'),
     path('details/set_details/', views.set_details, name='set_details'),

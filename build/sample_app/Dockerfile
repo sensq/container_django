@@ -11,7 +11,9 @@ RUN apk --no-cache --virtual build-dependencies add \
     && pip install -r requirements.txt \
     && apk del --purge build-dependencies
 
-EXPOSE 5000
+RUN pip install django-import-export
+RUN pip install python-dateutil
+RUN pip install pings
 
 COPY docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -19,10 +21,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 COPY check_admin.py /
 
 ARG DJANGO_PROJECT_NAME
-#COPY project/ /${DJANGO_PROJECT_NAME}/
+COPY project/ /${DJANGO_PROJECT_NAME}/
 WORKDIR /${DJANGO_PROJECT_NAME}
-
-RUN pip install django-import-export
-RUN pip install python-dateutil
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

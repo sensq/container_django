@@ -1,6 +1,8 @@
 app_name = os.environ.get("DJANGO_APPLICATION_NAME")
-path = app_name + ".models"
-from path import MgrData
+module_path = app_name + ".models"
+from importlib import import_module
+module = import_module(module_path)
+MgrData = getattr(module, "MgrData")
 
 MgrData.objects.all()
 

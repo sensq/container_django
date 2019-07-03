@@ -62,11 +62,3 @@ services:
 
   cache:
     image: memcached:alpine
-
-  sso:
-    image: jboss/keycloak
-    ports:
-      - "18080:8080"
-    environment:
-      KEYCLOAK_USER: "admin"
-      KEYCLOAK_PASSWORD: "admin"
