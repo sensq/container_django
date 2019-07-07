@@ -48,6 +48,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}                    # Djangoで使用するDBの名前
       MYSQL_USER: ${MYSQL_USER}                            # Djangoで使用するDBのログインユーザ
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}                    # Djangoで使用するDBのログインパスワード
+      APISERVER_HOST: "apiserver" # API-Serverのホスト名（コンテナ名）
       
   db:
     build: ./build/db
@@ -62,3 +63,28 @@ services:
 
   cache:
     image: memcached:alpine
+
+  apiserver:
+    build: ./build/api
+    environment:
+      INFLUXDB_HOST: "influxdb"  # InfluxDBのホスト名（コンテナ名）
+      INFLUXDB_PORT: "8086"
+      INFLUXDB_DB: "sample"  # 初期作成するDB名
+      APISERVER_PORT: "4000"
+      APISERVER_DEBUG: "True"
+
+  influxdb:
+    image: influxdb:alpine
+    environment:
+      INFLUXDB_DB: "sample"  # 初期作成するDB名
+      INFLUXDB_ADMIN_USER: "admin"
+      INFLUXDB_ADMIN_PASSWORD: "admin"
+
+  chronograf:
+    image: chronograf:alpine
+    ports:
+      - "8888:8888"
+    environment:
+      INFLUXDB_URL: "http://influxdb:8086"
+      INFLUXDB_USERNAME: "admin"
+      INFLUXDB_PASSWORD: "admin"

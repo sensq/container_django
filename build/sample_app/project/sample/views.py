@@ -65,6 +65,9 @@ def export_csv(request):
 
 @login_required
 def ping(request, num):
+    """
+    対象のIPに疎通確認をするAPI
+    """
     if request.method == "GET":
         obj = MgrData.objects.get(num=num)
         
@@ -113,10 +116,32 @@ def req(request, num):
     else:
         return redirect("main")
 
+def post_influxdb(measurement, type, ip, name):
+    """
+    InfluxDBにPostするAPI
+    """
+    import urllib.request
+    import urllib.parse
+    host = os.environ.get("APISERVER_HOST")
+    port = os.environ.get("APISERVER_PORT")
+    api_url = "http://" + host + ":" + port + "/add_influxdb"
+    data = {
+        "measurement": measurement,
+        "type": type,
+        "ip": ip,
+        "name": name
+    }
+    encoded_data = urllib.parse.urlencode(data).encode('utf-8')
+    req = urllib.request.Request(api_url, encoded_data)
+    res = urllib.request.urlopen(req)
+    print(res.read())
+    print(res.msg())
+    return res.msg
+
 @login_required
 def new_checkout(request):
     """
-    新規にIPを借りる関数
+    新規にIPを借りるAPI
     """
     if request.method == "POST":
         num = request.POST.get("request_id", "0")
@@ -142,6 +167,8 @@ def new_checkout(request):
         obj.save()
         ret = {"obj": obj, "order": "new"}
         
+        post_influxdb("request", "New", obj.ip, request.user.username)
+        
         return render(request, 'req/req.html', ret)
         
     else:
@@ -151,7 +178,7 @@ def new_checkout(request):
 @login_required
 def clear_checkout(request):
     """
-    借りているIPを開放する関数
+    借りているIPを開放するAPI
     """
     if request.method == "POST":
         num = request.POST.get("request_id", "0")
@@ -175,6 +202,8 @@ def clear_checkout(request):
         
         ret = {"obj": obj, "order": "clear"}
         
+        post_influxdb("request", "Clear", obj.ip, request.user.username)
+        
         return render(request, 'req/req.html', ret)
         
     else:
@@ -184,7 +213,7 @@ def clear_checkout(request):
 @login_required
 def increase_limit(request):
     """
-    期限日を3ヶ月延長する関数
+    期限日を3ヶ月延長するAPI
     """
     if request.method == "POST":
         num = request.POST.get("request_id", "0")
@@ -212,6 +241,8 @@ def increase_limit(request):
             "increase_enable": increase_enable,
             "order": "increase",
         }
+        
+        post_influxdb("request", "Increase", obj.ip, request.user.username)
         
         return render(request, 'req/req.html', ret)
         
@@ -243,6 +274,7 @@ def details(request, num):
             'notes': obj.notes,
         })
         ret = {"obj":obj, "form": f}
+        
         return render(request, 'req/details.html', ret)
         
     else:
@@ -251,7 +283,7 @@ def details(request, num):
 @login_required
 def set_details(request):
     """
-    詳細設定を行う画面
+    詳細設定を行うAPI
     """
     from .forms import details_form
     if request.method == "POST":
@@ -259,18 +291,19 @@ def set_details(request):
         if form.is_valid():
             num = request.POST.get("request_id", "0")
             obj = MgrData.objects.get(num=num)
-        
+            
             # 改竄等による不正な遷移の防止
             if( num == 0 ):
                 return redirect("403")
             if( not request.user.is_superuser ):
                 if( obj.address != request.user.email ):
                     return redirect("403")
-                        
+                    
             obj.vm_name = form.cleaned_data['vm_name']
             obj.purpose = form.cleaned_data['purpose']
             obj.notes = form.cleaned_data['notes']
             obj.save()
+            post_influxdb("request", "detail", obj.ip, request.user.username)
             return redirect("main")
             
     else:

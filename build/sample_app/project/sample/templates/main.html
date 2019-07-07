@@ -100,7 +100,7 @@
             } ],
             // 非表示にする列の指定
             columnDefs: [
-              { visible: false,{% if not request.user.is_superuser %}  // 部署, 氏名, アドレスを非表示にする
+              { visible: false,{% if request.user.is_superuser %}  // 部署, 氏名, アドレスを非表示にする
                   targets: [0],{% else %}
                   targets: [0,5,6,7],{% endif %}
               },
