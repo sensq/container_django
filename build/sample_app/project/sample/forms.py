@@ -17,6 +17,20 @@ class details_form(forms.Form):
         ),
     )
     
+    share = forms.CharField(
+        label = '共同利用者メールアドレス 入力欄（任意）',
+        required = False,
+        max_length = 80,
+        widget = forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'cols': 80,
+                'placeholder': 'hogehoge@gmail.com',
+                'style': 'width:1200px'
+            }
+        ),
+    )
+    
     purpose = forms.CharField(
         label = '利用目的 入力欄（任意）',
         required = False,

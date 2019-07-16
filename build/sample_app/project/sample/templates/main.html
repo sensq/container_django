@@ -41,6 +41,7 @@
             <th>貸出日</th>
             <th>返却日</th>
             <th>仮想マシン名</th>
+            <th>共同利用者</th>
             <th>目的</th>
             <th>備考</th>
           </tr>
@@ -71,6 +72,7 @@
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.checkout_date }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.limit_date }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.vm_name }}</td>
+            <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.share }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.purpose }}</td>
             <td{% if obj.in_use %}{% if obj.expired %} bgcolor="#fdd"{% else %} bgcolor="#ffd"{% endif %}{% endif %}>{{ obj.notes }}</td>
           </tr>

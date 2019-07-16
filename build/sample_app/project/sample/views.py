@@ -28,14 +28,39 @@ def main(request):
     }
     
     # 管理者以外は、メールアドレスが一致したデータだけ表示
+    from django.db.models import Q
     if request.user.is_superuser:
-        ret['data'] = MgrData.objects.all()
-    elif not request.user.is_authenticated:
-        ret['data'] = MgrData.objects.filter(in_use=False)
-    else:
-        from django.db.models import Q
         ret['data'] = MgrData.objects.filter(
-            Q(in_use=False) | Q(address=request.user.email)
+            Q(available=True)
+        )
+    elif not request.user.is_authenticated:
+        ret['data'] = MgrData.objects.filter(
+            Q(in_use=False), Q(available=True)
+        )
+    else:
+        ret['data'] = MgrData.objects.filter(
+            Q(Q(in_use=False), Q(available=True)) | Q(address=request.user.email)
+        )
+    
+    return render(request, 'main.html', ret)
+
+@login_required
+def managed(request):
+    """
+    IP一覧ページを表示する関数
+    """
+    ret = {
+        'data': None,
+        'today': timezone.localtime(timezone.now()),
+        'free_num': len(MgrData.objects.filter(in_use=True)),
+        'expired_num': len(MgrData.objects.filter(expired=True)),
+    }
+    
+    # 管理者以外は、メールアドレスが一致したデータだけ表示
+    from django.db.models import Q
+    if request.user.is_superuser:
+        ret['data'] = MgrData.objects.filter(
+            Q(available=False)
         )
     
     return render(request, 'main.html', ret)
@@ -47,11 +72,13 @@ def export_csv(request):
     """
     if request.user.is_superuser:
         import io
+        import os
         from django.http import HttpResponse
         from .admin import DataResource
         dataset = DataResource().export()
         now = timezone.localtime(timezone.now()).strftime("%Y%m%d_%H%M%S")
         filename = "simplemgr_" + now + ".csv"
+        os.makedirs("/export_csv", exist_ok=True)
         path = ("/export_csv/" + filename)
         with open(path, mode='w') as f:
             f.write(dataset.csv)
@@ -122,6 +149,7 @@ def post_influxdb(measurement, type, ip, name):
     """
     import urllib.request
     import urllib.parse
+    import os
     host = os.environ.get("APISERVER_HOST")
     port = os.environ.get("APISERVER_PORT")
     api_url = "http://" + host + ":" + port + "/add_influxdb"
@@ -135,7 +163,7 @@ def post_influxdb(measurement, type, ip, name):
     req = urllib.request.Request(api_url, encoded_data)
     res = urllib.request.urlopen(req)
     print(res.read())
-    print(res.msg())
+    print(res.msg)
     return res.msg
 
 @login_required
@@ -161,6 +189,7 @@ def new_checkout(request):
         obj.checkout_date = timezone.now()
         obj.limit_date = (timezone.now() + relativedelta(months=3))
         obj.vm_name = ""
+        obj.share = ""
         obj.purpose = ""
         obj.notes = ""
         
@@ -270,6 +299,7 @@ def details(request, num):
         
         f = details_form(initial = {
             'vm_name': obj.vm_name,
+            'share': obj.share,
             'purpose': obj.purpose,
             'notes': obj.notes,
         })
@@ -301,6 +331,7 @@ def set_details(request):
                     
             obj.vm_name = form.cleaned_data['vm_name']
             obj.purpose = form.cleaned_data['purpose']
+            obj.share = form.cleaned_data['share']
             obj.notes = form.cleaned_data['notes']
             obj.save()
             post_influxdb("request", "detail", obj.ip, request.user.username)

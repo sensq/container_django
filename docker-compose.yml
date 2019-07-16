@@ -31,7 +31,7 @@ services:
       - db
     volumes:
       - ./data/static:/static
-#      - ./build/sample_app/project:/prj
+      - ./build/sample_app/project:/prj
     environment:
       WSGI_PORT: ${WSGI_PORT}                              # WSGIを動かすポート
       WSGI_PROCESSES: ${WSGI_PROCESSES}                    # WSGIを動かすプロセス数
@@ -49,6 +49,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}                            # Djangoで使用するDBのログインユーザ
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}                    # Djangoで使用するDBのログインパスワード
       APISERVER_HOST: ${APISERVER_HOST}                    # API Serverが稼働しているホストやコンテナの名前
+      APISERVER_PORT: ${APISERVER_PORT}                    # API Serverが稼働している公開ポート
       
   db:
     build: ./build/db

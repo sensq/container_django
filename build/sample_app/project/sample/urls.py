@@ -24,6 +24,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     
     path('main/', views.main, name='main'),
+    path('managed/', views.managed, name='managed'),
     path('news/', views.index, name='news'),
     path('about/', views.index, name='about'),
     path('howto/', views.index, name='howto'),

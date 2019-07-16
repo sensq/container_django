@@ -37,6 +37,7 @@
         <th width=55>貸出日</th>
         <th width=55>返却日</th>
         <th>VM名</th>
+        <th>共同利用者</th>
         <th>利用目的</th>
         <th>備考</th>
       </tr>
@@ -51,6 +52,7 @@
         <td>{{ obj.checkout_date | date:"SHORT_DATE_FORMAT" }}</td>
         <td>{{ obj.limit_date | date:"SHORT_DATE_FORMAT" }}</td>
         <td>{{ obj.vm_name }}</td>
+        <td>{{ obj.share }}</td>
         <td>{{ obj.purpose }}</td>
         <td>{{ obj.notes }}</td>
       </tr>

@@ -22,6 +22,7 @@ class MgrData(models.Model):
     checkout_date = models.DateField('貸出日', blank=True, null=True)
     limit_date = models.DateField('返却日', blank=True, null=True)
     vm_name = models.CharField('仮想マシン名', max_length=80, blank=True, null=True)
+    share = models.TextField('共同利用者', max_length=80, blank=True, null=True)
     purpose = models.TextField('目的', max_length=80, blank=True, null=True)
     notes = models.TextField('備考', max_length=80, blank=True, null=True)
 
@@ -31,14 +32,15 @@ class MgrData(models.Model):
         """
         self.in_use = False
         self.available = True
-        self.ping = None
-        self.expired = None
+        self.ping = False
+        self.expired = False
         self.dept = None
         self.name = None
         self.address = None
         self.checkout_date = None
         self.limit_date = None
         self.vm_name = None
+        self.share = None
         self.purpose = None
         self.notes = None
         self.save()

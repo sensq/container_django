@@ -24,6 +24,7 @@ for i in range(254):
         checkout_date = None,
         limit_date = None,
         vm_name = None,
+        share = None,
         purpose = None,
         notes = None
     )
