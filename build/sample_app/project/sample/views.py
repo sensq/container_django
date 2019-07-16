@@ -39,7 +39,7 @@ def main(request):
         )
     else:
         ret['data'] = MgrData.objects.filter(
-            Q(Q(in_use=False), Q(available=True)) | Q(address=request.user.email)
+            Q(Q(in_use=False), Q(available=True)) | Q(address=request.user.email) | Q(share=request.user.email)
         )
     
     return render(request, 'main.html', ret)
