@@ -1,4 +1,4 @@
-Django==2.1  # for PyMySql's bug
+Django==2.1.11  # for PyMySql's bug
 PyMySQL
 uwsgi
 python-memcached
